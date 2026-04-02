@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benji Pays: Invoice Rover — Campaign Strategy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cerulean:#004777;--charcoal:#002843;--cooper:#CC7D51;--cameo:#D9B59D;--white:#F8F8F8;--good:#4DC97A;--muted:#7ba3be;--mid:#0d2033;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--charcoal);color:var(--white);font-family:'Barlow',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+nav{position:fixed;top:0;left:0;right:0;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;z-index:100;background:rgba(0,28,43,0.7);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04);}
+.nav-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:1px;text-transform:uppercase;}
+.nav-logo span{color:var(--cooper);}
+.nav-links{display:flex;gap:28px;list-style:none;}
+.nav-links a{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--white);}
+.nav-play{background:var(--cooper);color:var(--white)!important;padding:8px 16px;border-radius:8px;}
+</style>
+
+<style>
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;padding:80px 24px 60px;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(0,71,119,0.35) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(204,125,81,0.12) 0%,transparent 60%);z-index:0;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,71,119,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,71,119,0.06) 1px,transparent 1px);background-size:60px 60px;z-index:0;}
+.hero-content{position:relative;z-index:1;max-width:900px;}
+.eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:5px;text-transform:uppercase;color:var(--cooper);margin-bottom:20px;opacity:0;animation:fadeUp 0.8s ease 0.2s forwards;}
+.hero h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(64px,12vw,120px);line-height:0.9;letter-spacing:-2px;text-transform:uppercase;margin-bottom:16px;opacity:0;animation:fadeUp 0.8s ease 0.4s forwards;}
+.hero h1 em{font-style:normal;color:var(--cooper);}
+.hero-sub{font-size:clamp(16px,2.5vw,20px);color:var(--muted);max-width:600px;margin:0 auto 36px;opacity:0;animation:fadeUp 0.8s ease 0.6s forwards;}
+.hero-badges{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;opacity:0;animation:fadeUp 0.8s ease 0.8s forwards;}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:30px;padding:8px 16px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.badge.live{border-color:rgba(77,201,122,0.4);color:var(--good);background:rgba(77,201,122,0.07);}
+.badge.live::before{content:'●';font-size:8px;}
+.scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.2);opacity:0;animation:fadeIn 1s ease 1.4s forwards;}
+.scroll-line{width:1px;height:48px;background:linear-gradient(to bottom,var(--cooper),transparent);animation:scrollLine 1.8s ease-in-out infinite;}
+section{position:relative;z-index:1;}
+.container{max-width:1100px;margin:0 auto;padding:0 24px;}
+.section-pad{padding:100px 0;}
+.section-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--cooper);margin-bottom:16px;}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(36px,6vw,64px);line-height:1;text-transform:uppercase;margin-bottom:20px;}
+.section-title em{font-style:normal;color:var(--cooper);}
+.section-body{font-size:17px;color:var(--muted);line-height:1.8;max-width:680px;}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(0,71,119,0.4),rgba(204,125,81,0.3),transparent);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes scrollLine{0%,100%{opacity:0.3;}50%{opacity:1;}}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+</style>
+
+<style>
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:60px;}
+.problem-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);padding:36px;position:relative;overflow:hidden;transition:background 0.2s;}
+.problem-card:hover{background:rgba(0,71,119,0.06);}
+.problem-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cerulean),var(--cooper));transform:scaleX(0);transform-origin:left;transition:transform 0.5s ease;}
+.problem-card:hover::before{transform:scaleX(1);}
+.problem-number{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:72px;line-height:1;color:rgba(0,71,119,0.3);margin-bottom:12px;}
+.problem-card h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.problem-card p{font-size:14px;color:var(--muted);line-height:1.7;}
+.solution-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-top:60px;}
+.phone-frame{width:260px;height:520px;background:var(--mid);border-radius:36px;border:2px solid rgba(0,71,119,0.5);position:relative;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,0.5);margin:0 auto;}
+.phone-screen{position:absolute;inset:8px;background:linear-gradient(168deg,var(--charcoal) 0%,var(--cerulean) 55%,var(--charcoal) 100%);border-radius:28px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:24px 16px;overflow:hidden;}
+.phone-hud{width:100%;display:flex;justify-content:space-between;align-items:flex-start;}
+.phone-score{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;line-height:1;}
+.phone-score-lbl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.phone-combo{background:var(--good);color:#071a0e;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;padding:3px 8px;border-radius:20px;}
+.phone-lanes{display:flex;gap:8px;justify-content:center;align-items:center;flex:1;padding:16px 0;}
+.phone-lane{width:52px;height:180px;background:rgba(255,255,255,0.03);border-left:1px dashed rgba(255,255,255,0.06);border-right:1px dashed rgba(255,255,255,0.06);position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;padding-top:8px;}
+.phone-benji{width:28px;height:28px;background:var(--cerulean);border-radius:50% 50% 40% 40%;position:absolute;bottom:12px;animation:benjiBounce 0.6s ease-in-out infinite;}
+@keyframes benjiBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.lane-item{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.lane-item.bad{background:rgba(232,64,64,0.2);border:1px solid rgba(232,64,64,0.4);}
+.lane-item.good{background:rgba(77,201,122,0.2);border:1px solid rgba(77,201,122,0.4);animation:floatItem 1.2s ease-in-out infinite;}
+@keyframes floatItem{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+.phone-city{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+.science-bg{background:linear-gradient(180deg,transparent 0%,rgba(0,71,119,0.06) 50%,transparent 100%);}
+.science-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:60px;}
+.science-card{background:rgba(13,32,51,0.8);border:1px solid rgba(0,71,119,0.2);padding:32px;}
+.science-card:first-child{border-radius:12px 0 0 12px;}
+.science-card:last-child{border-radius:0 12px 12px 0;}
+.science-icon{font-size:32px;margin-bottom:16px;display:block;}
+.science-card h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.science-card p{font-size:13px;color:var(--muted);line-height:1.7;}
+.science-card .tag{display:inline-block;margin-top:14px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cooper);border:1px solid rgba(204,125,81,0.3);padding:3px 8px;border-radius:4px;}
+.mechanics-list{margin-top:60px;display:flex;flex-direction:column;gap:2px;}
+.mechanic-row{display:grid;grid-template-columns:280px 1fr 200px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.05);padding:28px 36px;align-items:center;transition:background 0.2s;}
+.mechanic-row:hover{background:rgba(0,71,119,0.08);}
+.mechanic-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:0.5px;text-transform:uppercase;}
+.mechanic-emoji{font-size:24px;margin-right:12px;}
+.mechanic-desc{font-size:14px;color:var(--muted);line-height:1.6;padding:0 24px;}
+.mechanic-why{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--cooper);text-align:right;}
+</style>
+
+<style>
+.cities-scroll{display:flex;gap:16px;overflow-x:auto;padding:40px 0 20px;scrollbar-width:none;}
+.cities-scroll::-webkit-scrollbar{display:none;}
+.city-card{flex:0 0 200px;background:var(--mid);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:24px 20px;position:relative;overflow:hidden;transition:transform 0.2s;}
+.city-card:hover{transform:translateY(-4px);}
+.city-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
+.city-card:nth-child(1)::before{background:#004777}.city-card:nth-child(2)::before{background:#3a7bd5}.city-card:nth-child(3)::before{background:#9b59b6}.city-card:nth-child(4)::before{background:#c45c10}.city-card:nth-child(5)::before{background:#f0c040}.city-card:nth-child(6)::before{background:#b040ff}.city-card:nth-child(7)::before{background:#00c8aa}.city-card:nth-child(8)::before{background:#4488ff}.city-card:nth-child(9)::before{background:#00aadd}.city-card:nth-child(10)::before{background:#00ffcc}
+.city-flag{font-size:28px;margin-bottom:10px;}
+.city-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.city-pts{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.city-genre{font-size:11px;color:var(--cameo);font-style:italic;}
+.leadgen-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;margin-top:60px;}
+.metric-list{display:flex;flex-direction:column;gap:16px;}
+.metric-row{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:rgba(0,71,119,0.08);border:1px solid rgba(0,71,119,0.2);border-radius:10px;}
+.metric-label{font-size:13px;color:var(--muted);}
+.metric-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;}
+.metric-val.cooper{color:var(--cooper);}.metric-val.green{color:var(--good);}
+.flow-steps{display:flex;flex-direction:column;}
+.flow-step{display:flex;gap:20px;padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.flow-step:last-child{border-bottom:none;}
+.flow-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;color:rgba(0,71,119,0.4);min-width:40px;line-height:1;}
+.flow-content h4{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;}
+.flow-content p{font-size:13px;color:var(--muted);}
+.budget-highlight{text-align:center;margin-top:60px;}
+.budget-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(80px,15vw,160px);line-height:1;background:linear-gradient(135deg,var(--cooper),var(--cameo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.budget-label{font-size:14px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:8px;}
+.budget-vs{font-size:14px;color:rgba(255,255,255,0.2);margin-top:12px;text-decoration:line-through;}
+.budget-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:48px;}
+.budget-item{padding:16px 20px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;display:flex;justify-content:space-between;align-items:center;}
+.budget-item-name{font-size:13px;color:var(--muted);}
+.budget-item-cost{font-size:13px;font-weight:700;color:var(--good);}
+.cta-section{padding:120px 0;text-align:center;position:relative;overflow:hidden;}
+.cta-section::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(0,71,119,0.2) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;}
+.cta-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(48px,8vw,80px);line-height:1;text-transform:uppercase;margin-bottom:20px;position:relative;}
+.cta-title em{font-style:normal;color:var(--cooper);}
+.cta-sub{font-size:16px;color:var(--muted);margin-bottom:40px;position:relative;}
+.cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--cooper),#e89565);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 32px;border-radius:12px;transition:transform 0.1s;box-shadow:0 4px 24px rgba(204,125,81,0.35);}
+.btn-primary:hover{transform:translateY(-2px);}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 32px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);transition:border-color 0.2s;}
+.btn-secondary:hover{border-color:rgba(255,255,255,0.4);}
+footer{padding:40px 24px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+footer p{font-size:12px;color:rgba(255,255,255,0.2);}
+@media(max-width:768px){.problem-grid,.science-grid,.leadgen-layout,.solution-layout{grid-template-columns:1fr;}.mechanic-row{grid-template-columns:1fr;gap:8px;}.mechanic-why{text-align:left;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">BENJI PAYS: <span>INVOICE ROVER</span></div>
+  <ul class="nav-links">
+    <li><a href="#why">The Problem</a></li>
+    <li><a href="#science">The Science</a></li>
+    <li><a href="#mechanics">Mechanics</a></li>
+    <li><a href="#cities">10 Cities</a></li>
+    <li><a href="#leadgen">Lead Gen</a></li>
+    <li><a href="#budget">Budget</a></li>
+    <li><a href="https://benji-pays-game.netlify.app" target="_blank" class="nav-play">Play →</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="eyebrow">Benji Pays · Campaign Strategy · April 2026</div>
+    <h1>Invoice<br><em>Rover</em></h1>
+    <p class="hero-sub">A browser-based mobile game that turns trade show foot traffic into qualified leads — and turns a payment automation brand into something MSPs actually want to play.</p>
+    <div class="hero-badges">
+      <span class="badge live">Live now</span>
+      <span class="badge">🐕 No app download</span>
+      <span class="badge">10 cities</span>
+      <span class="badge">N-able Empower · April 13–15</span>
+      <span class="badge">Under $300 total cost</span>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Scroll</span><div class="scroll-line"></div></div>
+</div>
+
+<div class="divider"></div>
+
+<section id="why" class="section-pad">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">The Problem</div>
+      <h2 class="section-title">Trade shows are expensive.<br><em>Forgettable</em> is worse.</h2>
+      <p class="section-body">Most MSP conference booths look identical. Banner. Demo screen. Awkward conversation. Nobody remembers who they talked to 48 hours later. We needed something that broke through — and that we'd actually own.</p>
+    </div>
+    <div class="problem-grid reveal">
+      <div class="problem-card"><div class="problem-number">01</div><h3>No natural entry point</h3><p>Payment automation is hard to demo without a live integration. Most prospects have no visceral sense of what the pain actually feels like. We needed a way to make the problem tangible in 30 seconds.</p></div>
+      <div class="problem-card"><div class="problem-number">02</div><h3>Lead quality at events is low</h3><p>Badge scans produce a list of names. Nobody opted in, nobody engaged. We wanted leads who self-selected — people who played 3+ rounds and put their real email in to see their name on the board.</p></div>
+      <div class="problem-card"><div class="problem-number">03</div><h3>One-event assets are wasteful</h3><p>Booths get broken down. Swag gets left behind. Nothing compounds. We wanted to build something that lives at a permanent URL and continues generating leads between events and after social posts.</p></div>
+      <div class="problem-card"><div class="problem-number">04</div><h3>The brand needed a moment</h3><p>Benji the dog mascot has enormous untapped potential. We've never given him a role. Invoice Rover is the first time Benji does something — and it's on-brand at every level of the game.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="section-pad">
+  <div class="container">
+    <div class="solution-layout">
+      <div class="reveal">
+        <div class="section-label">The Solution</div>
+        <h2 class="section-title">A game that is <em>also</em> a pipeline.</h2>
+        <p class="section-body" style="margin-bottom:24px;">Invoice Rover is a branded browser-based endless runner starring Benji. Players scan a QR code, enter their name and email to compete, and immediately start playing on their phone. No app. No friction. Name and email go straight to our CRM.</p>
+        <p class="section-body" style="margin-bottom:24px;">The game is built around our product's core value: Benji dodges bad payments — paper checks, overdue invoices, angry clients — and collects good ones: ACH transfers, instant pay, auto-pay badges. Every mechanic is a product metaphor. Players absorb the brand message without realising they're receiving it.</p>
+        <p class="section-body">After the event it stays live at a permanent URL. Every social post sends people to the same game — and each play captures another lead.</p>
+      </div>
+      <div class="reveal">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-hud">
+              <div><div class="phone-score-lbl">Score</div><div class="phone-score">4,820</div></div>
+              <div class="phone-combo">🔥 7 COMBO</div>
+            </div>
+            <div class="phone-lanes">
+              <div class="phone-lane"><div class="lane-item bad">📄</div><div class="lane-item good">💸</div></div>
+              <div class="phone-lane"><div class="lane-item good">⚡</div><div class="lane-item bad">⚠️</div><div class="phone-benji"></div></div>
+              <div class="phone-lane"><div class="lane-item bad">😤</div><div class="lane-item good">🔄</div></div>
+            </div>
+            <div class="phone-city">🇨🇦 Vancouver · City 1 of 10</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="science" class="section-pad science-bg">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">The Science</div>
+      <h2 class="section-title">Every design decision<br>was <em>intentional</em>.</h2>
+      <p class="section-body">Invoice Rover isn't a game with branding slapped on. The mechanics, progression, and UX are built around specific behavioural goals — engagement duration, replayability, emotional connection, and lead quality.</p>
+    </div>
+    <div class="science-grid reveal">
+      <div class="science-card"><span class="science-icon">🧠</span><h3>Variable reward scheduling</h3><p>Obstacles and collectibles spawn in semi-random patterns rather than fixed sequences. This is the same principle that makes slot machines compelling — the player never knows exactly what's coming. But skilled players can still read lanes and feel genuinely good at the game.</p><span class="tag">Psychology · Retention</span></div>
+      <div class="science-card"><span class="science-icon">📈</span><h3>Difficulty ramp & warm-up zone</h3><p>The first 30 seconds are deliberately easy — Vancouver is forgiving, speed is low. Players need to survive long enough to feel competent before the game gets hard. Players who feel competent come back. Players who die immediately at a booth demo don't.</p><span class="tag">Game Feel · Booth Ops</span></div>
+      <div class="science-card"><span class="science-icon">💥</span><h3>Clutch Save mechanic</h3><p>The first hit doesn't end the run. It resets the combo and triggers brief invincibility. The game feels fair, not punishing. Players who "almost died" and survived are far more likely to share the experience than players who felt cheated.</p><span class="tag">Fairness · Shareability</span></div>
+      <div class="science-card"><span class="science-icon">🌆</span><h3>City progression as storytelling</h3><p>Ten cities aren't just visual variety — they're a progress map. Players who reach Dallas feel accomplished in a way a score number alone doesn't convey. Cities give players something to report: "I made it to New York." This social currency drives repeat plays and word-of-mouth.</p><span class="tag">Narrative · Social Currency</span></div>
+      <div class="science-card"><span class="science-icon">🌙</span><h3>Night mode as emotional spike</h3><p>Power-ups trigger a live day-to-night city transition with a music energy spike. This sudden environmental shift creates a memorable moment — the kind of thing a player describes to the next person in line. It also resets the player's emotional state, extending average run length.</p><span class="tag">Emotion · Run Length</span></div>
+      <div class="science-card"><span class="science-icon">🎯</span><h3>Prize structure as leaderboard engine</h3><p>Daily resets + a daily prize + a grand prize across 3 days creates two separate competitive incentives. Daily resets mean yesterday's leader starts fresh — keeping Day 2 and 3 players engaged. This is tournament psychology, not raffle psychology.</p><span class="tag">Competition · Retention</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="mechanics" class="section-pad">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Game Mechanics</div>
+      <h2 class="section-title">Built different.<br><em>For a reason.</em></h2>
+    </div>
+    <div class="mechanics-list reveal">
+      <div class="mechanic-row"><div><span class="mechanic-emoji">💰</span><span class="mechanic-name">Paid in Full</span></div><div class="mechanic-desc">Collecting this power-up instantly clears every obstacle on screen in a burst of particles. Named after Invoice Rover's core feature. Auto-triggers — no button, no delay. Every bad payment: resolved.</div><div class="mechanic-why">Product metaphor</div></div>
+      <div class="mechanic-row"><div><span class="mechanic-emoji">🛡️</span><span class="mechanic-name">Auto-Pay Shield</span></div><div class="mechanic-desc">15 seconds of full invincibility. Style shifts to aggressive collecting. Named after the hands-off automation promise of Auto-Pay. Night mode activates. Nothing can touch you.</div><div class="mechanic-why">Product metaphor</div></div>
+      <div class="mechanic-row"><div><span class="mechanic-emoji">⚡</span><span class="mechanic-name">Instant Pay Boost</span></div><div class="mechanic-desc">Speed +60%, score ×2. High risk, high reward. The lanes feel tight, obstacles come fast. Exactly how instant payment feels — exhilarating and slightly out of control. 12 seconds.</div><div class="mechanic-why">Brand energy</div></div>
+      <div class="mechanic-row"><div><span class="mechanic-emoji">💫</span><span class="mechanic-name">Payment Streak</span></div><div class="mechanic-desc">Double points. Every collect adds 0.5 seconds to the timer. Skilled players extend well past 15 seconds. The mechanic is compound interest made playable.</div><div class="mechanic-why">Compound interest = our pitch</div></div>
+      <div class="mechanic-row"><div><span class="mechanic-emoji">🤸</span><span class="mechanic-name">Clutch Save</span></div><div class="mechanic-desc">First hit of any run doesn't end the game. Resets combo + brief invincibility flash. Second hit ends it. Players who "should have died" and survived are far more likely to come back.</div><div class="mechanic-why">Fairness = replayability</div></div>
+      <div class="mechanic-row"><div><span class="mechanic-emoji">⏱️</span><span class="mechanic-name">Delta-Time Normalization</span></div><div class="mechanic-desc">Game speed is tied to real time, not frame rate. Identical experience at 30fps on a cheap Android and 120fps on a MacBook. Critical for a conference where attendees have wildly different devices.</div><div class="mechanic-why">Technical fairness</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="cities" class="section-pad">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">10 Cities</div>
+      <h2 class="section-title">Vancouver to<br><em>Cyber City.</em></h2>
+      <p class="section-body">Each city unlocks at a score threshold, bringing a new soundtrack, colour palette, parallax skyline, and hidden easter egg. Cities are a progress map and a social conversation starter.</p>
+    </div>
+    <div class="cities-scroll reveal">
+      <div class="city-card"><div class="city-flag">🇨🇦</div><div class="city-name">Vancouver</div><div class="city-pts">0–1,500 pts</div><div class="city-genre">Indie folk</div></div>
+      <div class="city-card"><div class="city-flag">🇨🇦</div><div class="city-name">Toronto</div><div class="city-pts">1,500–3,000</div><div class="city-genre">Canadian indie</div></div>
+      <div class="city-card"><div class="city-flag">🇨🇦</div><div class="city-name">Montreal</div><div class="city-pts">3,000–4,500</div><div class="city-genre">French electronic</div></div>
+      <div class="city-card"><div class="city-flag">🤠</div><div class="city-name">Dallas</div><div class="city-pts">4,500–6,000</div><div class="city-genre">Country hip hop</div></div>
+      <div class="city-card"><div class="city-flag">🗽</div><div class="city-name">New York</div><div class="city-pts">6,000–7,500</div><div class="city-genre">East coast hip hop</div></div>
+      <div class="city-card"><div class="city-flag">🌴</div><div class="city-name">Los Angeles</div><div class="city-pts">7,500–9,000</div><div class="city-genre">West coast lo-fi</div></div>
+      <div class="city-card"><div class="city-flag">🌊</div><div class="city-name">Miami</div><div class="city-pts">9,000–10,500</div><div class="city-genre">Latin electronic</div></div>
+      <div class="city-card"><div class="city-flag">🇬🇧</div><div class="city-name">London</div><div class="city-pts">10,500–12,000</div><div class="city-genre">Drum &amp; bass</div></div>
+      <div class="city-card"><div class="city-flag">🇦🇺</div><div class="city-name">Australia</div><div class="city-pts">12,000–13,500</div><div class="city-genre">Surf rock</div></div>
+      <div class="city-card"><div class="city-flag">🤖</div><div class="city-name">Cyber City</div><div class="city-pts">13,500+</div><div class="city-genre">Synthwave / glitch</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="leadgen" class="section-pad">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Lead Generation</div>
+      <h2 class="section-title">Every play is<br><em>a lead.</em></h2>
+    </div>
+    <div class="leadgen-layout reveal">
+      <div class="metric-list">
+        <div class="metric-row"><span class="metric-label">Target leads — N-able Empower</span><span class="metric-val cooper">150+</span></div>
+        <div class="metric-row"><span class="metric-label">Target unique players / day</span><span class="metric-val">50+</span></div>
+        <div class="metric-row"><span class="metric-label">Target avg runs per player</span><span class="metric-val">3+</span></div>
+        <div class="metric-row"><span class="metric-label">Pipeline influenced (90 days)</span><span class="metric-val green">5+</span></div>
+        <div class="metric-row"><span class="metric-label">Lead quality signal</span><span class="metric-val cooper">Self-selected</span></div>
+        <div class="metric-row"><span class="metric-label">Post-event plays target (30 days)</span><span class="metric-val">500+</span></div>
+      </div>
+      <div class="flow-steps">
+        <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><h4>Scan QR code</h4><p>Table tents at every surface in the booth. One scan, game loads instantly on any phone.</p></div></div>
+        <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><h4>Enter name + email</h4><p>Required to appear on the leaderboard. Players self-select with real contact info because the prize is real.</p></div></div>
+        <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><h4>Lead captured automatically</h4><p>Name, email, score, city reached, and best combo written to Supabase on every run. No manual entry.</p></div></div>
+        <div class="flow-step"><div class="flow-num">04</div><div class="flow-content"><h4>Admin exports post-event</h4><p>Ranked lead list with engagement data. Highest scorers = most engaged prospects.</p></div></div>
+        <div class="flow-step"><div class="flow-num">05</div><div class="flow-content"><h4>HubSpot nurture sequence</h4><p>Leads tagged as Invoice Rover for segmentation and direct pipeline attribution tracking.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="budget" class="section-pad">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <div class="section-label">Budget</div>
+      <h2 class="section-title">Built in-house.<br><em>Costs almost nothing.</em></h2>
+    </div>
+    <div class="budget-highlight reveal">
+      <div class="budget-num">$282</div>
+      <div class="budget-label">Maximum total campaign cost</div>
+      <div class="budget-vs">Original estimate with external contractor: $1,500 – $2,500</div>
+    </div>
+    <div class="budget-items reveal">
+      <div class="budget-item"><span class="budget-item-name">Game engine + hosting</span><span class="budget-item-cost">$0</span></div>
+      <div class="budget-item"><span class="budget-item-name">GitHub + Netlify</span><span class="budget-item-cost">$0</span></div>
+      <div class="budget-item"><span class="budget-item-name">Supabase backend</span><span class="budget-item-cost">$0</span></div>
+      <div class="budget-item"><span class="budget-item-name">Midjourney assets</span><span class="budget-item-cost">$0 in-house</span></div>
+      <div class="budget-item"><span class="budget-item-name">Suno music (20 tracks)</span><span class="budget-item-cost">$0–$10/mo</span></div>
+      <div class="budget-item"><span class="budget-item-name">ElevenLabs SFX</span><span class="budget-item-cost">$5–$22/mo</span></div>
+      <div class="budget-item"><span class="budget-item-name">Booth print materials</span><span class="budget-item-cost">$50–$150</span></div>
+      <div class="budget-item"><span class="budget-item-name">AR filter (Phase 4)</span><span class="budget-item-cost">$0–$100</span></div>
+      <div class="budget-item"><span class="budget-item-name">External contractor</span><span class="budget-item-cost">$0 — built in-house</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="cta-section">
+  <div class="container">
+    <div class="reveal">
+      <h2 class="cta-title">Ready to<br><em>run with Benji?</em></h2>
+      <p class="cta-sub">The game is live. The leaderboard is counting down. N-able Empower starts April 13.</p>
+      <div class="cta-buttons">
+        <a href="https://benji-pays-game.netlify.app" target="_blank" class="btn-primary">🐕 Play Invoice Rover →</a>
+        <a href="https://benji-pays-game.netlify.app/leaderboard" target="_blank" class="btn-secondary">View Leaderboard</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Benji Pays: Invoice Rover · Campaign Strategy · April 2026</p>
+  <p>benji-pays-game.netlify.app</p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) setTimeout(() => entry.target.classList.add('visible'), i * 80);
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
