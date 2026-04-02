@@ -1,33 +1,18 @@
-// ─────────────────────────────────────────────────────
-//  BENJI PAYS: INVOICE ROVER
-//  Phaser 3 — Main Entry Point
-// ─────────────────────────────────────────────────────
+// Benji Pays: Invoice Rover — Phaser 3 Entry Point
 
-// Supabase config — fill these in when Supabase is ready
-const SUPABASE_URL  = '';
-const SUPABASE_KEY  = '';
+const SUPABASE_URL = '';  // Add when ready
+const SUPABASE_KEY = '';  // Add when ready
 
-// Game config
 const config = {
   type: Phaser.AUTO,
   width: 390,
   height: 844,
   backgroundColor: '#002843',
-  parent: document.body,
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  physics: {
-    default: 'arcade',
-    arcade: { gravity: { y: 800 }, debug: false }
-  },
-  scene: [
-    BootScene,
-    StartScene,
-    GameScene,
-    GameOverScene,
-  ]
+  scene: [ BootScene, StartScene, GameScene, GameOverScene ]
 };
 
 const game = new Phaser.Game(config);
