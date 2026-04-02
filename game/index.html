@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>BenjiPays — Run</title>
+<title>Benji Pays: Invoice Rover</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap');
   :root{--cerulean:#004777;--charcoal:#002843;--cooper:#CC7D51;--cameo:#D9B59D;--white:#F8F8F8;--good:#4DC97A;--bad:#E84040;--muted:#7ba3be;}
@@ -174,14 +174,16 @@ resizeCanvas();window.addEventListener('resize',resizeCanvas);
 const B={cerulean:'#004777',charcoal:'#002843',cooper:'#CC7D51',cameo:'#D9B59D',white:'#F8F8F8',good:'#4DC97A',bad:'#E84040',goodGlow:'rgba(77,201,122,.55)',badGlow:'rgba(232,64,64,.55)',puGlow:'rgba(204,125,81,.65)'};
 
 const CITIES=[
-  {name:'Vancouver',flag:'🇨🇦',t:0,sky:['#0c1e36','#183450'],ground:'#0c1c2e',accent:B.cerulean,gl:'#1a3250'},
-  {name:'Dallas',flag:'🤠',t:500,sky:['#28180a','#3a2410'],ground:'#18100a',accent:'#c45c10',gl:'#442e12'},
-  {name:'Los Angeles',flag:'🌴',t:1000,sky:['#180848','#280e5e'],ground:'#100630',accent:'#b040ff',gl:'#280e5c'},
-  {name:'Australia',flag:'🇦🇺',t:1500,sky:['#062c4c','#0a3c5c'],ground:'#041c30',accent:'#00aadd',gl:'#0a3050'},
-  {name:'Tokyo',flag:'🇯🇵',t:2000,sky:['#08061c','#120e34'],ground:'#060412',accent:'#ff0055',gl:'#180e3a'},
-  {name:'Lagos',flag:'🇳🇬',t:2500,sky:['#1e0c00','#2e1400'],ground:'#140800',accent:'#ff9900',gl:'#381800'},
-  {name:'London',flag:'🇬🇧',t:3000,sky:['#0c1016','#141c24'],ground:'#080c12',accent:'#4488ff',gl:'#1c2836'},
-  {name:'Cyber City',flag:'🤖',t:3500,sky:['#000a08','#001814'],ground:'#000806',accent:'#00ffcc',gl:'#003828'},
+  {name:'Vancouver',  flag:'🇨🇦',t:0,    sky:['#0c1e36','#183450'],ground:'#0c1c2e',accent:B.cerulean, gl:'#1a3250'},
+  {name:'Toronto',    flag:'🇨🇦',t:1500, sky:['#0e1a2e','#1a2c44'],ground:'#0a1420',accent:'#3a7bd5',  gl:'#1a3050'},
+  {name:'Montreal',   flag:'🇨🇦',t:3000, sky:['#1a1028','#2a1840'],ground:'#100a1c',accent:'#9b59b6',  gl:'#2a1840'},
+  {name:'Dallas',     flag:'🤠', t:4500, sky:['#28180a','#3a2410'],ground:'#18100a',accent:'#c45c10',  gl:'#442e12'},
+  {name:'New York',   flag:'🗽', t:6000, sky:['#0a0e1a','#141e30'],ground:'#080c14',accent:'#f0c040',  gl:'#1a2030'},
+  {name:'Los Angeles',flag:'🌴', t:7500, sky:['#180848','#280e5e'],ground:'#100630',accent:'#b040ff',  gl:'#280e5c'},
+  {name:'Miami',      flag:'🌊', t:9000, sky:['#0a1828','#102038'],ground:'#081018',accent:'#00c8aa',  gl:'#0a2030'},
+  {name:'London',     flag:'🇬🇧',t:10500,sky:['#0c1016','#141c24'],ground:'#080c12',accent:'#4488ff',  gl:'#1c2836'},
+  {name:'Australia',  flag:'🇦🇺',t:12000,sky:['#062c4c','#0a3c5c'],ground:'#041c30',accent:'#00aadd',  gl:'#0a3050'},
+  {name:'Cyber City', flag:'🤖', t:13500,sky:['#000a08','#001814'],ground:'#000806',accent:'#00ffcc',  gl:'#003828'},
 ];
 const getCity=s=>{for(let i=CITIES.length-1;i>=0;i--)if(s>=CITIES[i].t)return CITIES[i];return CITIES[0];};
 
@@ -197,12 +199,14 @@ const SKY={
   'Cyber City':[{x:.03,w:.05,h:.35},{x:.12,w:.04,h:.52},{x:.2,w:.07,h:.28},{x:.3,w:.03,h:.6,t:'antenna'},{x:.38,w:.06,h:.4},{x:.48,w:.05,h:.32},{x:.56,w:.08,h:.48},{x:.66,w:.04,h:.35},{x:.74,w:.06,h:.55},{x:.84,w:.05,h:.3},{x:.92,w:.04,h:.42}],
 };
 
-const PU_TYPES=[{name:'AUTO-PAY SHIELD',effect:'INVINCIBILITY · 8s',color:B.cerulean,emoji:'🛡️'},{name:'INSTANT PAY BOOST',effect:'SPEED + 2× SCORE · 5s',color:'#f5c842',emoji:'⚡'},{name:'INVOICE BLOCKER',effect:'SCREEN CLEARED',color:B.bad,emoji:'🚫'},{name:'PAYMENT STREAK',effect:'DOUBLE POINTS · 5s',color:B.good,emoji:'💫'}];
+const PU_TYPES=[{name:'AUTO-PAY SHIELD',effect:'INVINCIBILITY · 15s',color:B.cerulean,emoji:'🛡️',dur:15*60},{name:'INSTANT PAY BOOST',effect:'SPEED + 2× SCORE · 12s',color:'#f5c842',emoji:'⚡',dur:12*60},{name:'PAID IN FULL',effect:'ALL OBSTACLES CLEARED 💰',color:B.cooper,emoji:'💰',dur:0},{name:'PAYMENT STREAK',effect:'DOUBLE POINTS · 15s',color:B.good,emoji:'💫',dur:15*60}];
 const OBS=[{label:'📄',name:'PAPER CHECK',color:B.bad,size:34},{label:'⚠️',name:'OVERDUE INVOICE',color:B.bad,size:33},{label:'😤',name:'ANGRY CLIENT',color:B.bad,size:33}];
 const COL=[{label:'💸',name:'ACH',color:B.good,size:30,pts:20},{label:'⚡',name:'INSTANT',color:B.good,size:28,pts:30},{label:'💵',name:'DOLLAR',color:B.good,size:28,pts:15},{label:'🔄',name:'AUTO-PAY',color:B.good,size:28,pts:25}];
 
 let state='start',score=0,combo=0,maxCombo=0,multiplier=1,isNight=false,nightTimer=0;
 let shieldActive=false,shieldTimer=0,speedBoost=false,speedBoostTimer=0,doublePoints=false,doublePointsTimer=0;
+let clutchUsed=false,isClutch=false,clutchTimer=0;
+let puWarning=false,puFlashTimer=0,puFlashVisible=true,activePUTimer=0,activePUName=null;
 let frameCount=0,distance=0,currentCity=CITIES[0],lastCity=null,soundOn=true,playerName='',playCount=0;
 let targetLane=1,benjiX=0,benjiY=0,benjiBaseY=0,isJumping=false,jumpVy=0,benjiGlow=0;
 const GRAVITY=0.62,JUMP=-15;
@@ -223,7 +227,7 @@ const laneX=l=>{const lp=canvas.width*.08,lw=(canvas.width-lp*2)/3;return lp+lw*
 const groundY=()=>canvas.height*.78;
 const benjiSz=()=>Math.min(canvas.width*.13,48);
 
-function initGame(){score=0;combo=0;maxCombo=0;multiplier=1;isNight=false;nightTimer=0;shieldActive=false;shieldTimer=0;speedBoost=false;speedBoostTimer=0;doublePoints=false;doublePointsTimer=0;frameCount=0;distance=0;currentCity=CITIES[0];lastCity=null;targetLane=1;benjiX=laneX(1);benjiGlow=0;isJumping=false;jumpVy=0;benjiBaseY=groundY()-benjiSz()*.52;benjiY=benjiBaseY;obstacles=[];collectibles=[];powerups=[];particles=[];groundLines=[];spawnT=0;colT=0;puT=0;legendT=0;legendFaded=false;skylineOff=0;document.getElementById('ingameLegend').classList.remove('fade');document.getElementById('scoreDisplay').textContent='0';document.getElementById('nightOverlay').style.opacity='0';updateComboUI();const gy=groundY();for(let i=0;i<8;i++)groundLines.push({y:gy+Math.random()*canvas.height*.2,speed:.35+Math.random()*.35});}
+function initGame(){score=0;combo=0;maxCombo=0;multiplier=1;isNight=false;nightTimer=0;shieldActive=false;shieldTimer=0;speedBoost=false;speedBoostTimer=0;doublePoints=false;doublePointsTimer=0;clutchUsed=false;isClutch=false;clutchTimer=0;puWarning=false;puFlashTimer=0;puFlashVisible=true;activePUTimer=0;activePUName=null;frameCount=0;distance=0;currentCity=CITIES[0];lastCity=null;targetLane=1;benjiX=laneX(1);benjiGlow=0;isJumping=false;jumpVy=0;benjiBaseY=groundY()-benjiSz()*.52;benjiY=benjiBaseY;obstacles=[];collectibles=[];powerups=[];particles=[];groundLines=[];spawnT=0;colT=0;puT=0;legendT=0;legendFaded=false;skylineOff=0;document.getElementById('ingameLegend').classList.remove('fade');document.getElementById('scoreDisplay').textContent='0';document.getElementById('nightOverlay').style.opacity='0';updateComboUI();const gy=groundY();for(let i=0;i<8;i++)groundLines.push({y:gy+Math.random()*canvas.height*.2,speed:.35+Math.random()*.35});}
 
 function spawnObs(){const n=Math.random()<.28?2:1,lanes=[0,1,2].sort(()=>Math.random()-.5).slice(0,n);lanes.forEach(l=>{const t=OBS[Math.floor(Math.random()*OBS.length)];obstacles.push({lane:l,x:laneX(l),y:-55,type:t,size:t.size*(canvas.width/375),alive:true});});}
 function spawnCol(){const l=Math.floor(Math.random()*3),t=COL[Math.floor(Math.random()*COL.length)];collectibles.push({lane:l,x:laneX(l),y:-45,type:t,size:t.size*(canvas.width/375),alive:true,w:Math.random()*Math.PI*2});}
@@ -231,7 +235,13 @@ function spawnPU(){const l=Math.floor(Math.random()*3),t=PU_TYPES[Math.floor(Mat
 function burst(x,y,col,n=8){for(let i=0;i<n;i++){const a=(Math.PI*2*i)/n+Math.random()*.4,sp=2+Math.random()*4;particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-2,color:col,alpha:1,size:2.5+Math.random()*3.5,life:1});}}
 function scorePop(x,y,text,col){const el=document.createElement('div');el.className='score-pop';el.textContent=text;el.style.left=x+'px';el.style.top=y+'px';el.style.color=col||B.good;wrap.appendChild(el);setTimeout(()=>el.remove(),860);}
 function activateNight(){isNight=!isNight;nightTimer=isNight?13*60:0;document.getElementById('nightOverlay').style.opacity=isNight?'1':'0';benjiGlow=1;}
-function activatePU(t){sPU();activateNight();document.getElementById('puName').textContent=t.emoji+' '+t.name;document.getElementById('puEffect').textContent=t.effect;const b=document.getElementById('powerupBanner');b.classList.add('show');setTimeout(()=>b.classList.remove('show'),2200);if(t.name==='AUTO-PAY SHIELD'){shieldActive=true;shieldTimer=8*60;}if(t.name==='INSTANT PAY BOOST'){speedBoost=true;speedBoostTimer=5*60;}if(t.name==='INVOICE BLOCKER'){obstacles.forEach(o=>o.alive=false);burst(canvas.width/2,canvas.height/2,B.bad,18);}if(t.name==='PAYMENT STREAK'){doublePoints=true;doublePointsTimer=5*60;}}
+function activatePU(t){sPU();document.getElementById('puName').textContent=t.emoji+' '+t.name;document.getElementById('puEffect').textContent=t.effect;const b=document.getElementById('powerupBanner');b.classList.add('show');setTimeout(()=>b.classList.remove('show'),2200);
+  if(t.name==='PAID IN FULL'){obstacles.forEach(o=>o.alive=false);burst(canvas.width/2,canvas.height/2,B.cooper,20);return;}
+  activateNight();activePUName=t.name;activePUTimer=t.dur;puWarning=false;puFlashVisible=true;
+  if(t.name==='AUTO-PAY SHIELD'){shieldActive=true;shieldTimer=t.dur;}
+  if(t.name==='INSTANT PAY BOOST'){speedBoost=true;speedBoostTimer=t.dur;}
+  if(t.name==='PAYMENT STREAK'){doublePoints=true;doublePointsTimer=t.dur;}
+}
 function updateComboUI(){const b=document.getElementById('comboBadge'),m=document.getElementById('multiBadge');if(combo>0){b.textContent='🔥 '+combo+' COMBO';b.classList.add('active');b.classList.toggle('fire',combo>=3);}else b.classList.remove('active','fire');m.classList.toggle('active',multiplier>1);if(multiplier>1)m.textContent=multiplier+'× MULTIPLIER';}
 function showCityBanner(city){const b=document.getElementById('cityBanner');document.getElementById('cityPill').innerHTML=city.flag+' '+city.name.toUpperCase();b.style.opacity='1';setTimeout(()=>b.style.opacity='0',2600);sCity();}
 function emoji(e,x,y,sz){ctx.font=`${sz}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e,x,y);}
@@ -327,7 +337,7 @@ function drawBenji(x,y,sz){
 
 function gameLoop(){
   if(state!=='playing')return;requestAnimationFrame(gameLoop);frameCount++;
-  const gy=groundY(),bs=benjiSz(),baseSpd=2.2+Math.min(score/700,2.8),spd=baseSpd*(speedBoost?1.5:1);
+  const gy=groundY(),bs=benjiSz(),baseSpd=2.2+Math.min(score/1800,2.8),spd=baseSpd*(speedBoost?1.5:1);
   skylineOff+=spd*.8;
   benjiX+=(laneX(targetLane)-benjiX)*.17;benjiBaseY=gy-bs*.52;
   if(isJumping){jumpVy+=GRAVITY;benjiY+=jumpVy;if(benjiY>=benjiBaseY){benjiY=benjiBaseY;isJumping=false;jumpVy=0;}}else benjiY=benjiBaseY;
@@ -335,6 +345,14 @@ function gameLoop(){
   if(shieldTimer>0){shieldTimer--;if(shieldTimer===0)shieldActive=false;}
   if(speedBoostTimer>0){speedBoostTimer--;if(speedBoostTimer===0)speedBoost=false;}
   if(doublePointsTimer>0){doublePointsTimer--;if(doublePointsTimer===0)doublePoints=false;}
+  // Clutch save timer
+  if(isClutch){clutchTimer--;if(clutchTimer<=0)isClutch=false;}
+  // Power-up warning flash (last 4 seconds = 240 frames)
+  if(activePUTimer>0){activePUTimer--;
+    if(activePUTimer<=240&&!puWarning)puWarning=true;
+    if(puWarning){puFlashTimer++;if(puFlashTimer%10===0)puFlashVisible=!puFlashVisible;}
+    if(activePUTimer===0){activePUName=null;puWarning=false;puFlashVisible=true;}
+  }
   if(!legendFaded){legendT++;if(legendT>300){document.getElementById('ingameLegend').classList.add('fade');legendFaded=true;}}
   score+=(0.044*(spd/baseSpd))*multiplier*(doublePoints?2:1);distance+=spd;
   document.getElementById('scoreDisplay').textContent=Math.floor(score);
@@ -348,7 +366,7 @@ function gameLoop(){
   groundLines.forEach(gl=>{gl.y+=gl.speed*(spd/baseSpd);if(gl.y>canvas.height+20)gl.y=gy+5;});
   particles=particles.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.14;p.life-=.024;p.alpha=p.life;return p.life>0;});
   const bx=benjiX,by=benjiY,hr=bs*.36;
-  obstacles.forEach(o=>{if(!o.alive)return;const dx=o.x-bx,dy=o.y-by;if(Math.sqrt(dx*dx+dy*dy)<hr+o.size*.38){if(shieldActive){o.alive=false;burst(o.x,o.y,B.cerulean,6);}else{o.alive=false;sHit();burst(o.x,o.y,B.bad,12);endGame();}}});
+  obstacles.forEach(o=>{if(!o.alive)return;const dx=o.x-bx,dy=o.y-by;if(Math.sqrt(dx*dx+dy*dy)<hr+o.size*.38){if(shieldActive){o.alive=false;burst(o.x,o.y,B.cerulean,6);}else if(isClutch){/* still invincible from clutch */}else if(!clutchUsed){o.alive=false;clutchUsed=true;isClutch=true;clutchTimer=90;combo=0;multiplier=1;updateComboUI();sHit();burst(o.x,o.y,B.bad,8);}else{o.alive=false;sHit();burst(o.x,o.y,B.bad,12);endGame();}}});
   collectibles.forEach(c=>{if(!c.alive)return;const dx=c.x-bx,dy=c.y-by;if(Math.sqrt(dx*dx+dy*dy)<hr+c.size*.43){c.alive=false;const pts=c.type.pts*multiplier*(doublePoints?2:1);score+=pts;combo++;if(combo>maxCombo)maxCombo=combo;if(combo>=3)multiplier=Math.min(Math.floor(combo/3)+1,4);updateComboUI();sCollect();burst(c.x,c.y,B.good,8);scorePop(c.x,c.y,'+'+pts,B.good);benjiGlow=1;}});
   powerups.forEach(p=>{if(!p.alive)return;const dx=p.x-bx,dy=p.y-by;if(Math.sqrt(dx*dx+dy*dy)<hr+p.size*.43){p.alive=false;activatePU(p.type);burst(p.x,p.y,B.cooper,14);benjiGlow=1;}});
   ctx.clearRect(0,0,canvas.width,canvas.height);drawBG();
@@ -356,7 +374,7 @@ function gameLoop(){
   powerups.forEach(p=>{ctx.save();ctx.shadowBlur=16+Math.sin(p.pulse)*6;ctx.shadowColor=B.puGlow;const sc=1+Math.sin(p.pulse)*.07;ctx.translate(p.x,p.y);ctx.scale(sc,sc);ctx.translate(-p.x,-p.y);emoji(p.type.emoji,p.x,p.y,p.size);ctx.restore();ctx.beginPath();ctx.arc(p.x,p.y,p.size*.72,0,Math.PI*2);ctx.strokeStyle=p.type.color+'44';ctx.lineWidth=2;ctx.stroke();label(p.x,p.y-p.size*.88,'⚡ POWER-UP','rgba(204,125,81,.82)');});
   obstacles.forEach(o=>{ctx.save();ctx.shadowBlur=13;ctx.shadowColor=B.badGlow;emoji(o.type.label,o.x,o.y,o.size);ctx.restore();label(o.x,o.y-o.size*.78,'❌ DODGE','rgba(232,64,64,.82)');});
   particles.forEach(p=>{ctx.save();ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);ctx.fill();ctx.restore();});
-  drawBenji(benjiX,benjiY,bs);
+  if((isClutch||puWarning)&&!puFlashVisible){/* skip drawing Benji for flash effect */}else{drawBenji(benjiX,benjiY,bs);}
 }
 
 function endGame(){
@@ -369,7 +387,7 @@ function endGame(){
   document.getElementById('finalCity').textContent=currentCity.flag+' '+currentCity.name;
   document.getElementById('finalDistance').textContent=Math.floor(distance/60)+'m';
   document.getElementById('overCity').textContent='IN '+currentCity.name.toUpperCase();
-  document.getElementById('shareCopy').textContent=n+' scored '+fs+' pts in BenjiPays Runner! Reached '+currentCity.name+'. Can you beat me? 🐕💸 benjipays.com/run';
+  document.getElementById('shareCopy').textContent=n+' scored '+fs+' pts in Benji Pays: Invoice Rover! Reached '+currentCity.name+'. Can you beat me? 🐕💸 benjipays.com/run';
   document.getElementById('gameOverScreen').classList.remove('hidden');playCount++;
 }
 
