@@ -1,0 +1,194 @@
+
+async function api(method,table,body,params='',extraHeaders={}){
+  const res=await fetch(`${SUPA_URL}/rest/v1/${table}?${params}`,{
+    method,headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`,'Content-Type':'application/json','Prefer':'return=representation',...extraHeaders},
+    body:body?JSON.stringify(body):undefined
+  });
+  return res.ok?(method==='DELETE'?true:await res.json()):null;
+}
+
+function toast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='show'+(err?' err':'');
+  setTimeout(()=>t.className='',2500);
+}
+
+// ── LOGIN ──────────────────────────────────────────────
+function tryLogin(){
+  const pw=document.getElementById('pwInput').value;
+  if(pw===ADMIN_PW){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('adminApp').style.display='block';
+    init();
+  } else {
+    document.getElementById('loginErr').style.display='block';
+  }
+}
+document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
+function logout(){document.getElementById('loginScreen').style.display='flex';document.getElementById('adminApp').style.display='none';document.getElementById('pwInput').value='';}
+
+// ── INIT ──────────────────────────────────────────────
+async function init(){
+  await Promise.all([loadScores(),loadStats(),loadTimerSetting()]);
+  startTimerTick();
+}
+
+// ── STATS ──────────────────────────────────────────────
+async function loadStats(){
+  const all=await api('GET','scores','','select=id,score,email,city_reached,created_at,flagged=eq.false');
+  if(!all)return;
+  const today=new Date();today.setHours(0,0,0,0);
+  const todayRuns=all.filter(s=>new Date(s.created_at)>=today).length;
+  const leads=all.filter(s=>s.email).length;
+  const top=all.reduce((a,b)=>b.score>a.score?b:a,{score:0});
+  document.getElementById('statTotal').textContent=all.length.toLocaleString();
+  document.getElementById('statToday').textContent=todayRuns.toLocaleString();
+  document.getElementById('statLeads').textContent=leads.toLocaleString();
+  document.getElementById('statTopScore').textContent=(top.score||0).toLocaleString();
+  document.getElementById('statTopCity').textContent=top.city_reached||'—';
+}
+
+// ── SCORES ─────────────────────────────────────────────
+async function loadScores(){
+  const data=await api('GET','scores','','select=id,player_name,email,score,city_reached,city_flag,best_combo,flagged,created_at&order=score.desc');
+  if(!data)return;
+  allScores=data;
+  filterScores();
+}
+
+function filterScores(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const showF=document.getElementById('showFlagged').checked;
+  filteredScores=allScores.filter(s=>{
+    if(!showF&&s.flagged)return false;
+    if(q&&!s.player_name?.toLowerCase().includes(q)&&!s.email?.toLowerCase().includes(q))return false;
+    return true;
+  });
+  currentPage=0;
+  renderPage();
+}
+
+function renderPage(){
+  const start=currentPage*PAGE_SIZE,end=start+PAGE_SIZE;
+  const page=filteredScores.slice(start,end);
+  const tbody=document.getElementById('scoresBody');
+  if(!page.length){tbody.innerHTML='<tr><td colspan="8" class="empty-table">No scores found</td></tr>';return;}
+  tbody.innerHTML=page.map((s,i)=>`
+    <tr class="${s.flagged?'flagged-row':''}">
+      <td style="color:var(--muted);font-size:12px;">${start+i+1}</td>
+      <td><strong>${s.player_name||'—'}</strong> ${s.flagged?'<span class="flagged-badge">FLAGGED</span>':''}</td>
+      <td style="color:var(--muted);font-size:12px;">${s.email||'—'}</td>
+      <td><span class="score-val">${(s.score||0).toLocaleString()}</span></td>
+      <td><span class="city-badge">${s.city_flag||''} ${s.city_reached||'—'}</span></td>
+      <td style="color:var(--muted);">${s.best_combo||0}×</td>
+      <td style="color:var(--muted);font-size:11px;">${new Date(s.created_at).toLocaleString()}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-ghost btn-sm" onclick="openEdit('${s.id}','${(s.player_name||'').replace(/'/g,"\\'")}',${s.score})">Edit</button>
+          <button class="btn btn-sm" style="background:rgba(255,${s.flagged?'200':'64'},${s.flagged?'100':'64'},.15);color:${s.flagged?'var(--good)':'var(--bad)'};border:1px solid ${s.flagged?'rgba(77,201,122,.3)':'rgba(232,64,64,.3)'};" onclick="toggleFlag('${s.id}',${s.flagged})">${s.flagged?'Unflag':'Flag'}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteScore('${s.id}')">Delete</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  const total=filteredScores.length;
+  document.getElementById('pageInfo').textContent=`${start+1}–${Math.min(end,total)} of ${total}`;
+  document.getElementById('prevBtn').disabled=currentPage===0;
+  document.getElementById('nextBtn').disabled=end>=total;
+}
+
+function changePage(dir){currentPage+=dir;renderPage();}
+
+// ── EDIT ──────────────────────────────────────────────
+function openEdit(id,name,score){
+  editingId=id;
+  document.getElementById('editName').value=name;
+  document.getElementById('editScore').value=score;
+  document.getElementById('editModal').classList.add('show');
+}
+function closeModal(){document.getElementById('editModal').classList.remove('show');editingId=null;}
+
+async function saveEdit(){
+  const name=document.getElementById('editName').value.trim();
+  const score=parseInt(document.getElementById('editScore').value);
+  if(!name||isNaN(score))return toast('Name and score required',true);
+  const res=await api('PATCH','scores',{player_name:name,score},`id=eq.${editingId}`);
+  if(res){toast('Score updated ✓');closeModal();await loadScores();await loadStats();}
+  else toast('Update failed',true);
+}
+
+// ── FLAG / DELETE ─────────────────────────────────────
+async function toggleFlag(id,currentlyFlagged){
+  const res=await api('PATCH','scores',{flagged:!currentlyFlagged},`id=eq.${id}`);
+  if(res){toast(currentlyFlagged?'Score restored ✓':'Score flagged ✓');await loadScores();}
+  else toast('Action failed',true);
+}
+
+async function deleteScore(id){
+  if(!confirm('Permanently delete this score? This cannot be undone.'))return;
+  const res=await api('DELETE','scores',null,`id=eq.${id}`);
+  if(res!==null){toast('Score deleted ✓');await loadScores();await loadStats();}
+  else toast('Delete failed',true);
+}
+
+// ── EXPORT CSV ────────────────────────────────────────
+function exportCSV(){
+  const rows=[['Rank','Name','Email','Score','City','Combo','Date']];
+  filteredScores.forEach((s,i)=>{
+    rows.push([i+1,s.player_name||'',s.email||'',s.score||0,`${s.city_flag||''} ${s.city_reached||''}`,s.best_combo||0,new Date(s.created_at).toLocaleString()]);
+  });
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='invoice-rover-scores-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  toast('CSV exported ✓');
+}
+
+// ── TIMER ─────────────────────────────────────────────
+async function loadTimerSetting(){
+  const res=await api('GET','settings','','key=eq.leaderboard_reset_at&select=value');
+  if(res&&res[0]){
+    const resetAt=new Date(res[0].value);
+    document.getElementById('resetAtDisplay').textContent='Resets: '+resetAt.toLocaleString();
+    resetSeconds=Math.max(0,Math.floor((resetAt-new Date())/1000));
+  }
+}
+
+function startTimerTick(){
+  if(resetInterval)clearInterval(resetInterval);
+  resetInterval=setInterval(()=>{
+    if(resetSeconds>0)resetSeconds--;
+    const h=Math.floor(resetSeconds/3600),m=Math.floor((resetSeconds%3600)/60),s=resetSeconds%60;
+    document.getElementById('adminTimer').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  },1000);
+}
+
+async function setTimer(){
+  const val=document.getElementById('newResetAt').value;
+  if(!val)return toast('Pick a date and time first',true);
+  const dt=new Date(val).toISOString();
+  const res=await api('PATCH','settings',{value:dt,updated_at:new Date().toISOString()},'key=eq.leaderboard_reset_at');
+  if(res){
+    document.getElementById('resetAtDisplay').textContent='Resets: '+new Date(val).toLocaleString();
+    resetSeconds=Math.max(0,Math.floor((new Date(val)-new Date())/1000));
+    toast('Timer updated ✓');
+  } else toast('Update failed',true);
+}
+
+function setTimerHours(hours){
+  const dt=new Date(Date.now()+hours*3600*1000);
+  const local=new Date(dt.getTime()-dt.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  document.getElementById('newResetAt').value=local;
+  setTimer();
+}
+
+async function resetNow(){
+  if(!confirm('Reset the leaderboard NOW? This clears the timer and starts fresh.'))return;
+  const dt=new Date().toISOString();
+  const res=await api('PATCH','settings',{value:dt,updated_at:dt},'key=eq.leaderboard_reset_at');
+  if(res){resetSeconds=0;document.getElementById('resetAtDisplay').textContent='Reset just happened';toast('Leaderboard reset ✓');}
+  else toast('Reset failed',true);
+}
+</script>
+</body>
+</html>
