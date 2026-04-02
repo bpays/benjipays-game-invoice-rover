@@ -1,0 +1,40 @@
+# Benji Pays: Invoice Rover — .gitignore
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# Node / npm (if we add build tools later)
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Phaser Launcher project files (local only)
+.phaser/
+*.phaserproj
+
+# Environment / secrets — NEVER commit these
+.env
+.env.local
+config.local.js
+supabase.local.js
+
+# Build output
+dist/
+build/
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# OS files
+Icon?
+ehthumbs.db
