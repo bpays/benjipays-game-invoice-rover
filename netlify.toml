@@ -26,3 +26,8 @@
   [headers.values]
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
+
+[[redirects]]
+  from = "/strategy"
+  to = "/strategy/index.html"
+  status = 200
