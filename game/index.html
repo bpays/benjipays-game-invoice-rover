@@ -436,7 +436,8 @@ function endGame(){
     city_reached: currentCity.name,
     city_flag: currentCity.flag,
     best_combo: maxCombo,
-    distance: Math.floor(distance/60)
+    distance: Math.floor(distance/60),
+    event_tag: 'nable-empower-2026'
   });
 }
 
@@ -456,7 +457,7 @@ function startGame(){
   // Lead capture — write to Supabase on first play
   if(!leadCaptured){
     leadCaptured=true;
-    supaInsert('scores',{player_name:playerName,email:email||null,score:0,city_reached:'Vancouver',city_flag:'🇨🇦',best_combo:0,distance:0});
+    supaInsert('scores',{player_name:playerName,email:email||null,score:0,city_reached:'Vancouver',city_flag:'🇨🇦',best_combo:0,distance:0,event_tag:'nable-empower-2026'});
   }
 }
 document.getElementById('playBtn').addEventListener('click',startGame);
