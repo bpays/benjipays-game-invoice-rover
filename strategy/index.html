@@ -97,7 +97,7 @@ section{position:relative;z-index:1;}
 /* CITIES — horizontal scroll */
 .cities-row{display:flex;gap:10px;overflow-x:auto;padding:36px 0 12px;scrollbar-width:none;}
 .cities-row::-webkit-scrollbar{display:none;}
-.city{flex:0 0 160px;background:var(--mid);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:18px 14px;position:relative;overflow:hidden;transition:transform .2s;}
+.city{flex:0 0 160px;min-width:160px;background:var(--mid);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:18px 14px;position:relative;overflow:hidden;transition:transform .2s;}
 .city:hover{transform:translateY(-3px);}
 .city::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
 .city:nth-child(1)::after{background:#004777}.city:nth-child(2)::after{background:#3a7bd5}.city:nth-child(3)::after{background:#9b59b6}.city:nth-child(4)::after{background:#c45c10}.city:nth-child(5)::after{background:#f0c040}.city:nth-child(6)::after{background:#b040ff}.city:nth-child(7)::after{background:#00c8aa}.city:nth-child(8)::after{background:#4488ff}.city:nth-child(9)::after{background:#00aadd}.city:nth-child(10)::after{background:#00ffcc}
@@ -121,6 +121,16 @@ footer{padding:32px 28px;border-top:1px solid rgba(255,255,255,.05);display:flex
 footer p{font-size:11px;color:rgba(255,255,255,.15);}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+.admin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:44px;}
+.admin-card{background:var(--mid);border:1px solid rgba(0,71,119,.2);border-radius:12px;padding:24px 20px;}
+.admin-icon{font-size:28px;margin-bottom:12px;}
+.admin-card h4{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px;}
+.admin-card p{font-size:12.5px;color:var(--m);line-height:1.6;}
+.admin-url{display:flex;align-items:center;gap:14px;margin-top:24px;padding:16px 22px;background:rgba(0,71,119,.1);border:1px solid rgba(0,71,119,.25);border-radius:10px;}
+.admin-url-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--co);}
+.admin-url-val{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:var(--w);}
+@media(max-width:700px){.admin-grid{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
 <body>
@@ -249,6 +259,44 @@ footer p{font-size:11px;color:rgba(255,255,255,.15);}
       <div class="city"><div class="city-flag">🇬🇧</div><div class="city-name">London</div><div class="city-pts">10,500–12,000</div><div class="city-genre">Drum &amp; bass</div></div>
       <div class="city"><div class="city-flag">🇦🇺</div><div class="city-name">Australia</div><div class="city-pts">12,000–13,500</div><div class="city-genre">Surf rock</div></div>
       <div class="city"><div class="city-flag">🤖</div><div class="city-name">Cyber City</div><div class="city-pts">13,500+</div><div class="city-genre">Synthwave / glitch</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="pad">
+  <div class="wrap">
+    <div class="r">
+      <div class="lbl">Event Operations</div>
+      <h2 class="sh">Everything runs from<br><em>one admin panel.</em></h2>
+      <p class="body">Built for the booth. One URL, one password. No dev needed on event day.</p>
+    </div>
+    <div class="admin-grid r r2">
+      <div class="admin-card">
+        <div class="admin-icon">📊</div>
+        <h4>Live stats</h4>
+        <p>Total runs, leads captured, active players in last 15 min, top score, top city — updated in real time.</p>
+      </div>
+      <div class="admin-card">
+        <div class="admin-icon">⏱️</div>
+        <h4>Leaderboard timer</h4>
+        <p>Set the daily reset time each morning. +8h for quick end-of-day resets. Reset Now for instant clear.</p>
+      </div>
+      <div class="admin-card">
+        <div class="admin-icon">🏆</div>
+        <h4>Score management</h4>
+        <p>Search by name or email. Edit, flag, or remove scores. Hide inappropriate names from the public board instantly.</p>
+      </div>
+      <div class="admin-card">
+        <div class="admin-icon">📥</div>
+        <h4>CSV export</h4>
+        <p>Export the full ranked lead list after each day — name, email, score, city reached, best combo. Ready for HubSpot.</p>
+      </div>
+    </div>
+    <div class="admin-url r r3">
+      <span class="admin-url-label">Admin panel</span>
+      <span class="admin-url-val">benji-pays-game.netlify.app/admin</span>
     </div>
   </div>
 </section>
