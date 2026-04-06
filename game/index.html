@@ -482,7 +482,7 @@ const laneX=l=>{const lp=canvas.width*.08,lw=(canvas.width-lp*2)/3;return lp+lw*
 const groundY=()=>canvas.height*.78;
 const benjiSz=()=>Math.min(canvas.width*.13,48);
 
-function initGame(){score=0;combo=0;maxCombo=0;multiplier=1;isNight=false;nightTimer=0;shieldActive=false;shieldTimer=0;speedBoost=false;speedBoostTimer=0;doublePoints=false;doublePointsTimer=0;clutchUsed=false;isClutch=false;clutchTimer=0;puWarning=false;puFlashTimer=0;puFlashVisible=true;activePUTimer=0;activePUName=null;frameCount=0;distance=0;currentCity=CITIES[0];lastCity=null;targetLane=1;benjiX=laneX(1);benjiGlow=0;isJumping=false;jumpVy=0;benjiBaseY=groundY()-benjiSz()*.52;benjiY=benjiBaseY;obstacles=[];collectibles=[];powerups=[];particles=[];groundLines=[];spawnT=0;colT=0;puT=0;legendT=0;legendFaded=false;skylineOff=0;document.getElementById('ingameLegend').classList.remove('fade');document.getElementById('scoreDisplay').textContent='0';document.getElementById('nightOverlay').style.opacity='0';updateComboUI();const gy=groundY();for(let i=0;i<8;i++)groundLines.push({y:gy+Math.random()*canvas.height*.2,speed:.35+Math.random()*.35});}
+function initGame(){score=0;combo=0;maxCombo=0;multiplier=1;isNight=false;nightTimer=0;shieldActive=false;shieldTimer=0;speedBoost=false;speedBoostTimer=0;doublePoints=false;doublePointsTimer=0;clutchUsed=false;isClutch=false;clutchTimer=0;puWarning=false;puFlashTimer=0;puFlashVisible=true;activePUTimer=0;activePUName=null;frameCount=0;distance=0;currentCity=CITIES[0];lastCity=null;targetLane=1;benjiX=laneX(1);benjiGlow=0;isJumping=false;jumpVy=0;benjiBaseY=groundY()-benjiSz()*.52;benjiY=benjiBaseY;obstacles=[];collectibles=[];powerups=[];particles=[];groundLines=[];spawnT=0;colT=0;puT=0;legendT=0;legendFaded=false;skylineOff=0;document.getElementById('ingameLegend').classList.remove('fade');document.getElementById('scoreDisplay').textContent='0';document.getElementById('nightOverlay').style.opacity='0';updateComboUI();const gy=groundY();for(let i=0;i<8;i++)groundLines.push({y:gy+Math.random()*canvas.height*.2,speed:.35+Math.random()*.35});setTimeout(()=>showCityBanner(CITIES[0]),600);}
 
 function spawnObs(){const n=Math.random()<.28?2:1,lanes=[0,1,2].sort(()=>Math.random()-.5).slice(0,n);lanes.forEach(l=>{const t=OBS[Math.floor(Math.random()*OBS.length)];obstacles.push({lane:l,x:laneX(l),y:-55,type:t,size:t.size*(canvas.width/375),alive:true});});}
 function spawnCol(){const l=Math.floor(Math.random()*3),t=COL[Math.floor(Math.random()*COL.length)];collectibles.push({lane:l,x:laneX(l),y:-45,type:t,size:t.size*(canvas.width/375),alive:true,w:Math.random()*Math.PI*2});}
@@ -676,7 +676,14 @@ let mdX=0;
 wrap.addEventListener('mousedown',e=>{if(state==='playing')mdX=e.clientX;});
 wrap.addEventListener('mouseup',e=>{if(state!=='playing')return;const dx=e.clientX-mdX;if(Math.abs(dx)>28){if(dx>0){if(targetLane<2)targetLane++;}else{if(targetLane>0)targetLane--;}}else if(!isJumping)doJump();});
 window.addEventListener('keydown',e=>{if(state!=='playing')return;if(e.key==='ArrowLeft'||e.key==='a'){if(targetLane>0)targetLane--;}if(e.key==='ArrowRight'||e.key==='d'){if(targetLane<2)targetLane++;}if((e.key==='ArrowUp'||e.key==='w'||e.key===' ')&&!isJumping)doJump();});
-function toggleSoundFromStart(){soundOn=!soundOn;var btn=document.getElementById("startSoundBtn");if(btn)btn.textContent=soundOn?"🔊 Music On":"🔇 Music Off";document.getElementById("soundBtn").textContent=soundOn?"🔊":"🔇";if(soundOn&&audioCtx&&audioCtx.state==="suspended")audioCtx.resume();}
+function toggleSoundFromStart(){
+  soundOn=!soundOn;
+  var btn=document.getElementById('startSoundBtn');
+  if(btn)btn.textContent=soundOn?'🔊 Music On':'🔇 Music Off';
+  document.getElementById('soundBtn').textContent=soundOn?'🔊':'🔇';
+  if(soundOn){getAC();playTitleMusic();}
+  else stopMusic();
+}
 function doJump(){isJumping=true;jumpVy=JUMP;sJump();}
 function startGame(){
   playerName=document.getElementById('playerName').value.trim()||'Anonymous';
@@ -693,7 +700,11 @@ function startGame(){
 }
 // Title music starts on first interaction with Play button or sound toggle
 // Music during gameplay starts in startGame() directly
-document.getElementById('playBtn').addEventListener('click',startGame);
+document.getElementById('playBtn').addEventListener('click',()=>{
+  // Unlock audio on this gesture then start game
+  if(soundOn){ getAC(); playTitleMusic(); setTimeout(startGame,50); }
+  else startGame();
+});
 document.getElementById('retryBtn').addEventListener('click',()=>{
   document.getElementById('gameOverScreen').classList.add('hidden');
   if(playCount>=2){document.getElementById('ctaScreen').classList.remove('hidden');}
