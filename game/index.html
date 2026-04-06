@@ -358,72 +358,41 @@ function stopCurrentSource(fadeMs=600, cb){
   }
 }
 
-async function playMusic(file, vol=0.55, loop=true, fadeInMs=600){
+function playMusic(file, vol=0.55, loop=true, fadeInMs=600){
   if(!soundOn) return;
-  if(currentTrackFile === file && musicSource) return;
-
+  if(currentTrackFile===file && musicSource) return;
   const ac = getAC();
-  const fadeOutMs = fadeInMs < 400 ? 150 : 600;
-
-  // Preload next track while fading out current
-  const bufPromise = loadTrack(file);
-
-  // Fade out current
-  if(musicSource){
-    const oldSrc = musicSource;
-    const oldGain = musicGain;
-    musicSource = null; musicGain = null;
-    if(musicFadeTimer){ clearInterval(musicFadeTimer); musicFadeTimer=null; }
-    const startVol = oldGain ? oldGain.gain.value : 0;
-    const steps = fadeOutMs / 30;
-    let count = 0;
-    await new Promise(res=>{
-      const t = setInterval(()=>{
-        count++;
-        if(oldGain) oldGain.gain.value = Math.max(0, startVol - (startVol/steps)*count);
-        if(count >= steps){
-          clearInterval(t);
-          try{ oldSrc.stop(); }catch(e){}
-          if(oldGain) oldGain.disconnect();
-          res();
-        }
-      }, 30);
-    });
-  }
-
-  // Don't start if a newer track was requested while we were fading
   currentTrackFile = file;
-
-  const buf = await bufPromise;
-  if(!buf || currentTrackFile !== file || !soundOn) return;
-
-  const src = ac.createBufferSource();
-  src.buffer = buf;
-  src.loop = loop;
-
-  const gain = ac.createGain();
-  gain.gain.value = 0;
-  src.connect(gain);
-  gain.connect(ac.destination);
-  src.start(0);
-
-  musicSource = src;
-  musicGain = gain;
-
-  // Fade in
-  const steps = fadeInMs / 30;
-  let count = 0;
-  musicFadeTimer = setInterval(()=>{
-    count++;
-    gain.gain.value = Math.min(vol, (vol/steps)*count);
-    if(count >= steps){
-      clearInterval(musicFadeTimer);
-      musicFadeTimer = null;
-      gain.gain.value = vol;
-    }
-  }, 30);
+  // Stop current source
+  if(musicSource){
+    const s=musicSource, g=musicGain;
+    musicSource=null; musicGain=null;
+    const sv=g?g.gain.value:0, steps=Math.max(1,200/30); let n=0;
+    const t=setInterval(()=>{
+      n++; if(g) g.gain.value=Math.max(0,sv-(sv/steps)*n);
+      if(n>=steps){clearInterval(t);try{s.stop();}catch(e){}if(g)g.disconnect();}
+    },30);
+  }
+  // Fetch, decode and play — all chained with .then() so no async/await
+  fetch(file)
+    .then(r=>r.arrayBuffer())
+    .then(buf=>ac.decodeAudioData(buf))
+    .then(decoded=>{
+      if(currentTrackFile!==file || !soundOn) return;
+      const src=ac.createBufferSource();
+      src.buffer=decoded; src.loop=loop;
+      const gain=ac.createGain(); gain.gain.value=0;
+      src.connect(gain); gain.connect(ac.destination);
+      src.start(0);
+      musicSource=src; musicGain=gain;
+      const steps=Math.max(1,fadeInMs/30); let n=0;
+      const t=setInterval(()=>{
+        n++; gain.gain.value=Math.min(vol,(vol/steps)*n);
+        if(n>=steps){clearInterval(t); gain.gain.value=vol;}
+      },30);
+    })
+    .catch(e=>console.warn('Music failed:',file,e));
 }
-
 function stopMusic(fadeMs=600){
   if(!musicSource) return;
   const src = musicSource;
