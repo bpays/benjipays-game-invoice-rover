@@ -669,11 +669,7 @@ function startGame(){
 }
 // Title music starts on first interaction with Play button or sound toggle
 // Music during gameplay starts in startGame() directly
-document.getElementById('playBtn').addEventListener('click',()=>{
-  // Unlock audio on this gesture then start game
 document.getElementById('playBtn').addEventListener('click',()=>{ getAC(); startGame();});
-  else startGame();
-});
 document.getElementById('retryBtn').addEventListener('click',()=>{
   document.getElementById('gameOverScreen').classList.add('hidden');
   if(playCount>=2){document.getElementById('ctaScreen').classList.remove('hidden');}
