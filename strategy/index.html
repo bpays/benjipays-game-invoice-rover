@@ -95,9 +95,9 @@ section{position:relative;z-index:1;}
 @media(max-width:580px){.pu-grid{grid-template-columns:1fr;}}
 
 /* CITIES — horizontal scroll */
-.cities-row{display:flex;gap:10px;overflow-x:auto;padding:36px 0 12px;scrollbar-width:none;}
+.cities-row{display:flex;flex-wrap:nowrap;gap:10px;overflow-x:scroll;overflow-y:visible;padding:36px 0 20px;-webkit-overflow-scrolling:touch;width:100%;}
 .cities-row::-webkit-scrollbar{display:none;}
-.city{flex:0 0 160px;min-width:160px;background:var(--mid);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:18px 14px;position:relative;overflow:hidden;transition:transform .2s;}
+.city{flex:0 0 155px;min-width:155px;background:var(--mid);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:18px 14px;position:relative;overflow:hidden;transition:transform .2s;}
 .city:hover{transform:translateY(-3px);}
 .city::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
 .city:nth-child(1)::after{background:#004777}.city:nth-child(2)::after{background:#3a7bd5}.city:nth-child(3)::after{background:#9b59b6}.city:nth-child(4)::after{background:#c45c10}.city:nth-child(5)::after{background:#f0c040}.city:nth-child(6)::after{background:#b040ff}.city:nth-child(7)::after{background:#00c8aa}.city:nth-child(8)::after{background:#4488ff}.city:nth-child(9)::after{background:#00aadd}.city:nth-child(10)::after{background:#00ffcc}
@@ -311,6 +311,7 @@ footer p{font-size:11px;color:rgba(255,255,255,.15);}
       <div class="cta-btns">
         <a href="https://benji-pays-game.netlify.app" target="_blank" class="btn-p">🐕 Play Invoice Rover →</a>
         <a href="https://benji-pays-game.netlify.app/leaderboard" target="_blank" class="btn-s">View Leaderboard</a>
+        <a href="https://suno.com/playlist/63a1f417-6701-46f2-a4e8-94e8d8f96d4c" target="_blank" class="btn-s">🎵 Hear the Soundtrack</a>
       </div>
     </div>
   </div>
