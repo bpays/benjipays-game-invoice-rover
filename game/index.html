@@ -252,14 +252,106 @@ let obstacles=[],collectibles=[],powerups=[],particles=[],groundLines=[];
 let spawnT=0,colT=0,puT=0,legendT=0,legendFaded=false,skylineOff=0;
 let highScore=parseInt(localStorage.getItem('benjiHS')||'0');
 
+// ── AUDIO SYSTEM ─────────────────────────────────────────
 let audioCtx=null;
-const getAC=()=>{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;};
+const MUSIC_BASE = 'assets/audio/music/';
+const CITY_TRACKS = {
+  'Vancouver':   {day:'music_vancouver_day_loop.mp3',   night:'music_vancouver_night_loop.mp3'},
+  'Toronto':     {day:'music_toronto_day_loop.mp3',     night:'music_toronto_night_loop.mp3'},
+  'Montreal':    {day:'music_montreal_day_loop.mp3',    night:'music_montreal_night_loop.mp3'},
+  'Dallas':      {day:'music_dallas_day_loop.mp3',      night:'music_dallas_night_loop.mp3'},
+  'New York':    {day:'music_newyork_day_loop.mp3',     night:'music_newyork_night_loop.mp3'},
+  'Los Angeles': {day:'music_losangeles_day_loop.mp3',  night:'music_losangeles_night_loop.mp3'},
+  'Miami':       {day:'music_miami_day_loop.mp3',       night:'music_miami_night_loop.mp3'},
+  'London':      {day:'music_london_day_loop.mp3',      night:'music_london_night_loop.mp3'},
+  'Australia':   {day:'music_australia_day_loop.mp3',   night:'music_australia_night_loop.mp3'},
+  'Cyber City':  {day:'music_cybercity_day_loop.mp3',   night:'music_cybercity_night_loop.mp3'},
+};
+
+// Audio nodes
+let musicTrack = null;   // current HTMLAudioElement
+let musicFading = null;  // outgoing track during crossfade
+let currentTrackFile = null;
+
+function getAC(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+
+// ── MUSIC PLAYBACK ────────────────────────────────────
+function getMusicFile(cityName, night){
+  const tracks = CITY_TRACKS[cityName] || CITY_TRACKS['Vancouver'];
+  return MUSIC_BASE + (night ? tracks.night : tracks.day);
+}
+
+function playMusic(file, vol=0.55, loop=true, fadeInMs=1000){
+  if(!soundOn) return;
+  if(currentTrackFile === file && musicTrack && !musicTrack.paused) return;
+  currentTrackFile = file;
+
+  // Fade out current track — fast if slamming in (night mode), slow otherwise
+  const fadeOutMs = fadeInMs < 500 ? 150 : 800;
+  if(musicTrack){
+    const old = musicTrack;
+    fadeOut(old, fadeOutMs, ()=>{ old.pause(); old.src=''; });
+  }
+
+  // Start new track with fade in
+  const audio = new Audio(file);
+  audio.loop = loop;
+  audio.volume = 0;
+  audio.play().catch(()=>{});
+  musicTrack = audio;
+  fadeIn(audio, vol, fadeInMs);
+}
+
+function stopMusic(fadeMs=800){
+  if(musicTrack){ const old=musicTrack; musicTrack=null; currentTrackFile=null; fadeOut(old, fadeMs, ()=>{ old.pause(); old.src=''; }); }
+}
+
+function fadeOut(audio, ms, cb){
+  const step = audio.volume / (ms/50);
+  const t = setInterval(()=>{
+    if(audio.volume <= step){ audio.volume=0; clearInterval(t); if(cb)cb(); }
+    else audio.volume = Math.max(0, audio.volume - step);
+  }, 50);
+}
+
+function fadeIn(audio, targetVol, ms){
+  const step = targetVol / (ms/50);
+  const t = setInterval(()=>{
+    if(audio.volume >= targetVol - step){ audio.volume = targetVol; clearInterval(t); }
+    else audio.volume = Math.min(targetVol, audio.volume + step);
+  }, 50);
+}
+
+function swapToNightMusic(cityName, fadeMs=300){
+  const file = getMusicFile(cityName, true);
+  if(currentTrackFile !== file) playMusic(file, 0.78, true, fadeMs); // Fast slam in
+}
+
+function swapToDayMusic(cityName, fadeMs=800){
+  const file = getMusicFile(cityName, false);
+  if(currentTrackFile !== file) playMusic(file, 0.55, true, fadeMs); // Slower settle
+}
+
+function playTitleMusic(){
+  playMusic(MUSIC_BASE + 'Title Screen.mp3', 0.4);
+}
+
+// ── SFX (Web Audio API — instant, no loading) ─────────
 function beep(fr,dur,type='square',vol=0.12){if(!soundOn)return;try{const ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type=type;o.frequency.value=fr;g.gain.setValueAtTime(vol,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+dur);o.start();o.stop(ac.currentTime+dur);}catch(e){}}
 const sCollect=()=>{beep(660,.09,'sine',.14);setTimeout(()=>beep(880,.07,'sine',.1),75);};
 const sJump=()=>{beep(280,.13,'triangle',.09);beep(380,.09,'triangle',.07);};
 const sHit=()=>{beep(110,.35,'sawtooth',.18);beep(75,.45,'sawtooth',.13);};
 const sPU=()=>{[440,550,660,880].forEach((f,i)=>setTimeout(()=>beep(f,.14,'sine',.16),i*65));};
 const sCity=()=>{[330,440,550].forEach((f,i)=>setTimeout(()=>beep(f,.18,'sine',.09),i*90));};
+
+function toggleMusicFromStart(){
+  soundOn=!soundOn;
+  const btn=document.getElementById('startSoundBtn');
+  if(btn) btn.textContent=soundOn?'\uD83D\uDD0A Music On':'\uD83D\uDD07 Music Off';
+  document.getElementById('soundBtn').textContent=soundOn?'\uD83D\uDD0A':'\uD83D\uDD07';
+  if(soundOn){ if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume(); playTitleMusic(); }
+  else stopMusic();
+}
 
 const laneX=l=>{const lp=canvas.width*.08,lw=(canvas.width-lp*2)/3;return lp+lw*l+lw/2;};
 const groundY=()=>canvas.height*.78;
@@ -272,7 +364,16 @@ function spawnCol(){const l=Math.floor(Math.random()*3),t=COL[Math.floor(Math.ra
 function spawnPU(){const l=Math.floor(Math.random()*3),t=PU_TYPES[Math.floor(Math.random()*PU_TYPES.length)];powerups.push({lane:l,x:laneX(l),y:-45,type:t,size:34*(canvas.width/375),alive:true,pulse:0});}
 function burst(x,y,col,n=8){for(let i=0;i<n;i++){const a=(Math.PI*2*i)/n+Math.random()*.4,sp=2+Math.random()*4;particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-2,color:col,alpha:1,size:2.5+Math.random()*3.5,life:1});}}
 function scorePop(x,y,text,col){const el=document.createElement('div');el.className='score-pop';el.textContent=text;el.style.left=x+'px';el.style.top=y+'px';el.style.color=col||B.good;wrap.appendChild(el);setTimeout(()=>el.remove(),860);}
-function activateNight(){isNight=!isNight;nightTimer=isNight?13*60:0;document.getElementById('nightOverlay').style.opacity=isNight?'1':'0';benjiGlow=1;}
+function activateNight(){
+  isNight=!isNight;
+  nightTimer=isNight?13*60:0;
+  document.getElementById('nightOverlay').style.opacity=isNight?'1':'0';
+  benjiGlow=1;
+  if(soundOn){
+    if(isNight) swapToNightMusic(currentCity.name, 300);
+    else swapToDayMusic(currentCity.name, 800);
+  }
+}
 function activatePU(t){sPU();document.getElementById('puName').textContent=t.emoji+' '+t.name;document.getElementById('puEffect').textContent=t.effect;const b=document.getElementById('powerupBanner');b.classList.add('show');setTimeout(()=>b.classList.remove('show'),2200);
   if(t.name==='PAID IN FULL'){obstacles.forEach(o=>o.alive=false);burst(canvas.width/2,canvas.height/2,B.cooper,20);return;}
   activateNight();activePUName=t.name;activePUTimer=t.dur;puWarning=false;puFlashVisible=true;
@@ -397,7 +498,7 @@ function gameLoop(timestamp){
   if(!legendFaded){legendT++;if(legendT>300){document.getElementById('ingameLegend').classList.add('fade');legendFaded=true;}}
   score+=(0.044*(spd/baseSpd))*multiplier*(doublePoints?2:1)*delta;distance+=spd*delta;
   document.getElementById('scoreDisplay').textContent=Math.floor(score);
-  const nc=getCity(Math.floor(score));if(nc!==currentCity){currentCity=nc;if(lastCity!==nc){showCityBanner(nc);lastCity=nc;}}
+  const nc=getCity(Math.floor(score));if(nc!==currentCity){currentCity=nc;if(lastCity!==nc){showCityBanner(nc);lastCity=nc;if(soundOn) swapToDayMusic(nc.name);}}
   spawnT+=delta;const sr=Math.max(72-Math.floor(score/150),34);if(spawnT>=sr){spawnObs();spawnT=0;}
   colT+=delta;if(colT>=Math.max(52-Math.floor(score/240),26)){spawnCol();colT=0;}
   puT+=delta;if(puT>=490){spawnPU();puT=0;}
@@ -429,7 +530,7 @@ function endGame(){
   document.getElementById('finalDistance').textContent=Math.floor(distance/60)+'m';
   document.getElementById('overCity').textContent='IN '+currentCity.name.toUpperCase();
   document.getElementById('shareCopy').textContent=n+' scored '+fs+' pts in Benji Pays: Invoice Rover! Reached '+currentCity.name+'. Can you beat me? 🐕💸 benjipays.com/run';
-  document.getElementById('gameOverScreen').classList.remove('hidden');playCount++;
+  document.getElementById('gameOverScreen').classList.remove('hidden');playCount++;stopMusic(600);
   // Submit score to Supabase
   supaInsert('scores',{
     player_name: n,
@@ -462,15 +563,43 @@ function startGame(){
     leadCaptured=true;
     supaInsert('scores',{player_name:playerName,email:email||null,score:0,city_reached:'Vancouver',city_flag:'🇨🇦',best_combo:0,distance:0,event_tag:'nable-empower-2026'});
   }
+  // Start Vancouver day music
+  swapToDayMusic('Vancouver');
 }
+// Play title music on load (fires after first user gesture via sound button or play)
+document.addEventListener('DOMContentLoaded', ()=>{
+  // Pre-unlock audio on first touch — browsers require user gesture
+  document.addEventListener('touchstart', function unlockAudio(){
+    if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+    playTitleMusic();
+    document.removeEventListener('touchstart', unlockAudio);
+  }, {once:true});
+  document.addEventListener('mousedown', function unlockAudioMouse(){
+    if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+    playTitleMusic();
+    document.removeEventListener('mousedown', unlockAudioMouse);
+  }, {once:true});
+});
 document.getElementById('playBtn').addEventListener('click',startGame);
 document.getElementById('retryBtn').addEventListener('click',()=>{
   document.getElementById('gameOverScreen').classList.add('hidden');
   if(playCount>=2){document.getElementById('ctaScreen').classList.remove('hidden');}
-  else{state='playing';lastTime=0;initGame();requestAnimationFrame(gameLoop);}
+  else{state='playing';lastTime=0;initGame();requestAnimationFrame(gameLoop);if(soundOn)swapToDayMusic('Vancouver');}
 });
 document.getElementById('shareBtn').addEventListener('click',()=>{const txt=document.getElementById('shareCopy').textContent;if(navigator.share)navigator.share({text:txt}).catch(()=>{});else navigator.clipboard?.writeText(txt).then(()=>alert('Copied!')).catch(()=>alert(txt));});
-document.getElementById('soundBtn').addEventListener('click',()=>{soundOn=!soundOn;document.getElementById('soundBtn').textContent=soundOn?'🔊':'🔇';if(soundOn&&audioCtx&&audioCtx.state==='suspended')audioCtx.resume();});
+document.getElementById('soundBtn').addEventListener('click',()=>{
+  soundOn=!soundOn;
+  document.getElementById('soundBtn').textContent=soundOn?'\uD83D\uDD0A':'\uD83D\uDD07';
+  const sb=document.getElementById('startSoundBtn');
+  if(sb) sb.textContent=soundOn?'\uD83D\uDD0A Music On':'\uD83D\uDD07 Music Off';
+  if(soundOn){
+    if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+    if(state==='playing') swapToDayMusic(currentCity?currentCity.name:'Vancouver');
+    else playTitleMusic();
+  } else {
+    stopMusic();
+  }
+});
 document.getElementById('playerEmail').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
 document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('playerEmail').focus();});
 document.getElementById('ctaBookBtn').addEventListener('click',()=>{window.open('https://benjipays.com/demo','_blank');});
