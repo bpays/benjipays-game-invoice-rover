@@ -95,9 +95,9 @@ section{position:relative;z-index:1;}
 @media(max-width:580px){.pu-grid{grid-template-columns:1fr;}}
 
 /* CITIES — horizontal scroll */
-.cities-row{display:flex;flex-wrap:nowrap;gap:10px;overflow-x:scroll;overflow-y:visible;padding:36px 0 20px;-webkit-overflow-scrolling:touch;width:100%;}
+.cities-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:40px;}
 .cities-row::-webkit-scrollbar{display:none;}
-.city{flex:0 0 155px;min-width:155px;background:var(--mid);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:18px 14px;position:relative;overflow:hidden;transition:transform .2s;}
+.city{background:var(--mid);border:1px solid rgba(255,255,255,.055);border-radius:10px;padding:18px 14px;position:relative;overflow:hidden;transition:transform .2s;}
 .city:hover{transform:translateY(-3px);}
 .city::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
 .city:nth-child(1)::after{background:#004777}.city:nth-child(2)::after{background:#3a7bd5}.city:nth-child(3)::after{background:#9b59b6}.city:nth-child(4)::after{background:#c45c10}.city:nth-child(5)::after{background:#f0c040}.city:nth-child(6)::after{background:#b040ff}.city:nth-child(7)::after{background:#00c8aa}.city:nth-child(8)::after{background:#4488ff}.city:nth-child(9)::after{background:#00aadd}.city:nth-child(10)::after{background:#00ffcc}
@@ -131,6 +131,9 @@ footer p{font-size:11px;color:rgba(255,255,255,.15);}
 .admin-url-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--co);}
 .admin-url-val{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:var(--w);}
 @media(max-width:700px){.admin-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:900px){.cities-row{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:640px){.cities-row{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:420px){.cities-row{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
 <body>
@@ -248,7 +251,7 @@ footer p{font-size:11px;color:rgba(255,255,255,.15);}
       <h2 class="sh">Vancouver to <em>Cyber City.</em></h2>
       <p class="body">Each city unlocks with a new parallax skyline, arrival banner, and soundtrack. Every city has a day track and a night track — the night version slams in when Benji grabs a power-up.</p>
     </div>
-    <div class="cities-row r r2" style="width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding-left:32px;padding-right:32px;">
+    <div class="cities-row r r2">
       <div class="city"><div class="city-flag">🇨🇦</div><div class="city-name">Vancouver</div><div class="city-pts">0–1,500 pts</div><div class="city-genre">Indie folk</div></div>
       <div class="city"><div class="city-flag">🇨🇦</div><div class="city-name">Toronto</div><div class="city-pts">1,500–3,000</div><div class="city-genre">Canadian indie</div></div>
       <div class="city"><div class="city-flag">🇨🇦</div><div class="city-name">Montreal</div><div class="city-pts">3,000–4,500</div><div class="city-genre">French electronic</div></div>
