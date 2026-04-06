@@ -269,72 +269,196 @@ const CITY_TRACKS = {
   'Cyber City':  {day:'music_cybercity_day_loop.mp3',   night:'music_cybercity_night_loop.mp3'},
 };
 
-// Audio nodes
-let musicTrack = null;   // current HTMLAudioElement
-let musicFading = null;  // outgoing track during crossfade
+// Audio nodes — AudioContext based (works on iOS Safari after gesture unlock)
 let currentTrackFile = null;
+let musicSource = null;      // AudioBufferSourceNode
+let musicGain = null;        // GainNode for volume control
+let musicFadeTimer = null;
+const audioCache = {};       // decoded AudioBuffer cache
 
-function getAC(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function getAC(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
 
-// ── MUSIC PLAYBACK ────────────────────────────────────
 function getMusicFile(cityName, night){
   const tracks = CITY_TRACKS[cityName] || CITY_TRACKS['Vancouver'];
   return MUSIC_BASE + (night ? tracks.night : tracks.day);
 }
 
-function playMusic(file, vol=0.55, loop=true, fadeInMs=1000){
-  if(!soundOn) return;
-  if(currentTrackFile === file && musicTrack && !musicTrack.paused) return;
-  currentTrackFile = file;
+async function loadTrack(file){
+  if(audioCache[file]) return audioCache[file];
+  try{
+    const resp = await fetch(file);
+    const buf = await resp.arrayBuffer();
+    const decoded = await getAC().decodeAudioData(buf);
+    audioCache[file] = decoded;
+    return decoded;
+  }catch(e){ console.warn('Track load failed:', file, e); return null; }
+}
 
-  // Fade out current track — fast if slamming in (night mode), slow otherwise
-  const fadeOutMs = fadeInMs < 500 ? 150 : 800;
-  if(musicTrack){
-    const old = musicTrack;
-    fadeOut(old, fadeOutMs, ()=>{ old.pause(); old.src=''; });
+function setMusicVol(val){
+  if(musicGain) musicGain.gain.value = Math.max(0, Math.min(1, val));
+}
+
+function fadeMusicTo(targetVol, ms, cb){
+  if(!musicGain) return;
+  if(musicFadeTimer) clearInterval(musicFadeTimer);
+  const start = musicGain.gain.value;
+  const steps = ms / 30;
+  const step = (targetVol - start) / steps;
+  let count = 0;
+  musicFadeTimer = setInterval(()=>{
+    count++;
+    const v = start + step * count;
+    musicGain.gain.value = Math.max(0, Math.min(1, v));
+    if(count >= steps){
+      clearInterval(musicFadeTimer);
+      musicFadeTimer = null;
+      if(cb) cb();
+    }
+  }, 30);
+}
+
+function stopCurrentSource(fadeMs=600, cb){
+  if(!musicSource){ if(cb)cb(); return; }
+  const src = musicSource;
+  const gain = musicGain;
+  musicSource = null;
+  musicGain = null;
+  currentTrackFile = null;
+  if(gain && fadeMs > 0){
+    fadeMusicTo.call({musicGain:gain}, 0, fadeMs, ()=>{
+      try{ src.stop(); }catch(e){}
+      gain.disconnect();
+      if(cb)cb();
+    });
+    // Use the local gain ref since musicGain is now null
+    if(musicFadeTimer) clearInterval(musicFadeTimer);
+    const start = gain.gain.value;
+    const steps = fadeMs / 30;
+    const step = -start / steps;
+    let count = 0;
+    musicFadeTimer = setInterval(()=>{
+      count++;
+      gain.gain.value = Math.max(0, start + step * count);
+      if(count >= steps){
+        clearInterval(musicFadeTimer);
+        musicFadeTimer = null;
+        try{ src.stop(); }catch(e){}
+        gain.disconnect();
+        if(cb)cb();
+      }
+    }, 30);
+  } else {
+    try{ src.stop(); }catch(e){}
+    if(gain) gain.disconnect();
+    if(cb)cb();
+  }
+}
+
+async function playMusic(file, vol=0.55, loop=true, fadeInMs=600){
+  if(!soundOn) return;
+  if(currentTrackFile === file && musicSource) return;
+
+  const ac = getAC();
+  const fadeOutMs = fadeInMs < 400 ? 150 : 600;
+
+  // Preload next track while fading out current
+  const bufPromise = loadTrack(file);
+
+  // Fade out current
+  if(musicSource){
+    const oldSrc = musicSource;
+    const oldGain = musicGain;
+    musicSource = null; musicGain = null;
+    if(musicFadeTimer){ clearInterval(musicFadeTimer); musicFadeTimer=null; }
+    const startVol = oldGain ? oldGain.gain.value : 0;
+    const steps = fadeOutMs / 30;
+    let count = 0;
+    await new Promise(res=>{
+      const t = setInterval(()=>{
+        count++;
+        if(oldGain) oldGain.gain.value = Math.max(0, startVol - (startVol/steps)*count);
+        if(count >= steps){
+          clearInterval(t);
+          try{ oldSrc.stop(); }catch(e){}
+          if(oldGain) oldGain.disconnect();
+          res();
+        }
+      }, 30);
+    });
   }
 
-  // Start new track with fade in
-  const audio = new Audio(file);
-  audio.loop = loop;
-  audio.volume = 0;
-  audio.play().catch(()=>{});
-  musicTrack = audio;
-  fadeIn(audio, vol, fadeInMs);
+  // Don't start if a newer track was requested while we were fading
+  currentTrackFile = file;
+
+  const buf = await bufPromise;
+  if(!buf || currentTrackFile !== file || !soundOn) return;
+
+  const src = ac.createBufferSource();
+  src.buffer = buf;
+  src.loop = loop;
+
+  const gain = ac.createGain();
+  gain.gain.value = 0;
+  src.connect(gain);
+  gain.connect(ac.destination);
+  src.start(0);
+
+  musicSource = src;
+  musicGain = gain;
+
+  // Fade in
+  const steps = fadeInMs / 30;
+  let count = 0;
+  musicFadeTimer = setInterval(()=>{
+    count++;
+    gain.gain.value = Math.min(vol, (vol/steps)*count);
+    if(count >= steps){
+      clearInterval(musicFadeTimer);
+      musicFadeTimer = null;
+      gain.gain.value = vol;
+    }
+  }, 30);
 }
 
-function stopMusic(fadeMs=800){
-  if(musicTrack){ const old=musicTrack; musicTrack=null; currentTrackFile=null; fadeOut(old, fadeMs, ()=>{ old.pause(); old.src=''; }); }
-}
-
-function fadeOut(audio, ms, cb){
-  const step = audio.volume / (ms/50);
+function stopMusic(fadeMs=600){
+  if(!musicSource) return;
+  const src = musicSource;
+  const gain = musicGain;
+  musicSource = null; musicGain = null; currentTrackFile = null;
+  if(musicFadeTimer){ clearInterval(musicFadeTimer); musicFadeTimer=null; }
+  if(!gain){ try{src.stop();}catch(e){} return; }
+  const startVol = gain.gain.value;
+  const steps = fadeMs / 30;
+  let count = 0;
   const t = setInterval(()=>{
-    if(audio.volume <= step){ audio.volume=0; clearInterval(t); if(cb)cb(); }
-    else audio.volume = Math.max(0, audio.volume - step);
-  }, 50);
+    count++;
+    gain.gain.value = Math.max(0, startVol - (startVol/steps)*count);
+    if(count >= steps){
+      clearInterval(t);
+      try{ src.stop(); }catch(e){}
+      gain.disconnect();
+    }
+  }, 30);
 }
 
-function fadeIn(audio, targetVol, ms){
-  const step = targetVol / (ms/50);
-  const t = setInterval(()=>{
-    if(audio.volume >= targetVol - step){ audio.volume = targetVol; clearInterval(t); }
-    else audio.volume = Math.min(targetVol, audio.volume + step);
-  }, 50);
+// Legacy stubs so nothing breaks
+function fadeOut(){}
+function fadeIn(){}
+
+function swapToNightMusic(cityName){
+  playMusic(getMusicFile(cityName, true), 0.78, true, 300);
 }
 
-function swapToNightMusic(cityName, fadeMs=300){
-  const file = getMusicFile(cityName, true);
-  if(currentTrackFile !== file) playMusic(file, 0.78, true, fadeMs); // Fast slam in
-}
-
-function swapToDayMusic(cityName, fadeMs=800){
-  const file = getMusicFile(cityName, false);
-  if(currentTrackFile !== file) playMusic(file, 0.55, true, fadeMs); // Slower settle
+function swapToDayMusic(cityName){
+  playMusic(getMusicFile(cityName, false), 0.55, true, 800);
 }
 
 function playTitleMusic(){
-  playMusic(MUSIC_BASE + 'Title Screen.mp3', 0.4);
+  playMusic(MUSIC_BASE + 'Title Screen.mp3', 0.4, true, 800);
 }
 
 // ── SFX (Web Audio API — instant, no loading) ─────────
@@ -564,11 +688,8 @@ function startGame(){
     leadCaptured=true;
     supaInsert('scores',{player_name:playerName,email:email||null,score:0,city_reached:'Vancouver',city_flag:'🇨🇦',best_combo:0,distance:0,event_tag:'nable-empower-2026'});
   }
-  // Stop title screen music and start game music
-  if(soundOn){
-    stopMusic(300); // Quick fade out of title music
-    setTimeout(()=>swapToDayMusic('Vancouver'),350); // Start game music after brief pause
-  }
+  // Start game music — swapToDayMusic handles crossfade from title music
+  if(soundOn) swapToDayMusic('Vancouver');
 }
 // Title music starts on first interaction with Play button or sound toggle
 // Music during gameplay starts in startGame() directly
