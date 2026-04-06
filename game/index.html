@@ -665,13 +665,13 @@ function startGame(){
     supaInsert('scores',{player_name:playerName,email:email||null,score:0,city_reached:'Vancouver',city_flag:'🇨🇦',best_combo:0,distance:0,event_tag:'nable-empower-2026'});
   }
   // Start game music — swapToDayMusic handles crossfade from title music
-  if(soundOn) swapToDayMusic('Vancouver');
+  if(soundOn) setTimeout(()=>swapToDayMusic('Vancouver'), 200);
 }
 // Title music starts on first interaction with Play button or sound toggle
 // Music during gameplay starts in startGame() directly
 document.getElementById('playBtn').addEventListener('click',()=>{
   // Unlock audio on this gesture then start game
-  if(soundOn){ getAC(); playTitleMusic(); setTimeout(startGame,50); }
+document.getElementById('playBtn').addEventListener('click',()=>{ getAC(); startGame();});
   else startGame();
 });
 document.getElementById('retryBtn').addEventListener('click',()=>{
