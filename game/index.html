@@ -10,7 +10,7 @@
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   html,body{width:100%;height:100%;overflow:hidden;background:var(--charcoal);font-family:'Barlow',sans-serif;color:var(--white);touch-action:none;user-select:none;}
   #app{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
-  #gameWrap{position:relative;width:min(420px,100vw);height:min(780px,100vh);overflow:hidden;background:var(--charcoal);}
+  #gameWrap{position:relative;width:100vw;height:100vh;max-width:calc(100vh * 9/16);margin:0 auto;overflow:hidden;background:var(--charcoal);}#app{display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;background:var(--charcoal);}
   #gameCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
   .screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;transition:opacity .35s ease;}
   .screen.hidden{opacity:0;pointer-events:none;}
